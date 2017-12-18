@@ -1,0 +1,14 @@
+version: '3'
+ 
+services:
+  springbootapp:
+    build:
+      context: .
+      dockerfile: SpringBootAppDockerfile
+    image: springbootapp
+    container_name: springbootapp01
+    expose:
+      - 8080
+    environment:
+      - spring.h2.console.settings.web-allow-others=true
+
