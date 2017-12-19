@@ -1,15 +1,10 @@
 pipeline {
-  agent {
-    docker {
-      image 'jenkinstest'
+    agent { docker 'node:6.3' }
+    stages {
+        stage('build') {
+            steps {
+                sh 'npm --version'
+            }
+        }
     }
-    
-  }
-  stages {
-    stage('build') {
-      steps {
-        sh 'mvn --version'
-      }
-    }
-  }
 }
