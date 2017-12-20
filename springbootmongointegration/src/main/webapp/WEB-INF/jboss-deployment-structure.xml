@@ -1,0 +1,12 @@
+<jboss-deployment-structure>
+ <deployment>
+ <!-- Add this line in the server lauch parameter : -Dorg.jboss.as.logging.per-deployment=false -->
+  <exclusions>
+   <module name="org.apache.log4j"/>
+   <module name="org.apache.commons.logging"/>
+   <module name="org.slf4j" />
+   <module name="org.slf4j.impl" />
+   <module name="org.jboss.logging" />
+  </exclusions>   
+ </deployment>
+</jboss-deployment-structure>
