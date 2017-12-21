@@ -1,6 +1,12 @@
 pipeline {
-    agent any
+    agent none
     stages {
+        agent {
+          docker {
+            image 'maven' 
+            args '-v /root/.m2:/root/.m2' 
+            }
+        }
         stage('Build') { 
             steps {
                 sh 'mvn clean install' 
@@ -11,6 +17,7 @@ pipeline {
                 sh 'mvn package'
             }
         }
+        agent none
        stage('Create Docker Image') {
             steps {
                 sh 'docker build -f SpringBootDockerfile -t springbootjenkinsapp .'
