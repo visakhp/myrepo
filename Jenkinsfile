@@ -1,11 +1,4 @@
-pipeline {
-    agent {
-        docker {
-            image 'maven' 
-            args '-v /root/.m2:/root/.m2' 
-        }
-    }
-    stages {
+node {
         stage('Build') { 
             steps {
                 sh 'mvn clean install' 
@@ -24,5 +17,4 @@ pipeline {
                 sh 'docker inspect springbootapp:${env.BUILD_NUMBER}'
             }
         }
-    }  
 }
