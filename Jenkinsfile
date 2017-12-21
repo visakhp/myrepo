@@ -26,6 +26,7 @@ pipeline {
        stage('Create Docker Image') {
            agent any
             steps {
+                sh 'cp jbos/jboss*.zip .'
                 sh 'docker-compose -f docker-jenkins-compose.yml up -d --build'
                 sh 'sleep 10s'
                 sh 'docker inspect springbootmysql | grep "IPAddress"'
