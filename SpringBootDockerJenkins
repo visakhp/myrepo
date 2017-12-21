@@ -7,7 +7,7 @@ ENV TOPDIR /springboot
 ENV JBOSS_DIR $TOPDIR/jboss-eap-7.0
 
 ADD /jbos/jboss*.zip /tmp
-#COPY /jboss/jboss*.zip /tmp
+COPY /jbos/jboss*.zip /tmp
 
 RUN mkdir $TOPDIR
 RUN mkdir $TOPDIR/log
