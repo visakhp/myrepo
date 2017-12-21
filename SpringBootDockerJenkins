@@ -22,11 +22,11 @@ RUN chmod -R 777 /usr/lib/jvm
 RUN chown -R visakh:root /usr/lib/jvm
 COPY springboot_environment.properties $TOPDIR
 
-RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk*/bin/java 100
-RUN update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk*/bin/javac 100
+#RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk*/bin/java 100
+#RUN update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk*/bin/javac 100
 
-RUN chmod 777 /usr/bin/java
-RUN chmod 777 /usr/bin/javac
+#RUN chmod 777 /usr/bin/java
+#RUN chmod 777 /usr/bin/javac
 
 RUN apt-get update && \
       apt-get -y install unzip zip vim
