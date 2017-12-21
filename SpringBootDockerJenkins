@@ -1,0 +1,62 @@
+# Use latest ubuntu image as the base
+FROM ubuntu:17.10
+
+RUN useradd -m visakh ; echo visakh: | chpasswd ; usermod -a -G root visakh
+
+ENV TOPDIR /springboot
+ENV JBOSS_DIR $TOPDIR/jboss-eap-7.0
+
+COPY /jbos/jboss*.zip /tmp
+
+RUN mkdir $TOPDIR
+RUN mkdir $TOPDIR/log
+
+# install java
+RUN add-apt-repository ppa:webupd8team/java
+RUN apt-get update
+RUN echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+RUN apt-get install -y oracle-java8-installer
+
+RUN chmod -R 777 /usr/lib/jvm
+RUN chown -R visakh:root /usr/lib/jvm
+COPY springboot_environment.properties $TOPDIR
+
+RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk*/bin/java 100
+RUN update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk*/bin/javac 100
+
+RUN chmod 777 /usr/bin/java
+RUN chmod 777 /usr/bin/javac
+
+RUN apt-get update && \
+      apt-get -y install unzip zip vim
+
+RUN apt-get update && apt-get install -y iputils-ping
+
+# Ensure signals are forwarded to the JVM process correctly for graceful shutdown
+ENV LAUNCH_JBOSS_IN_BACKGROUND=true
+
+RUN unzip -q /tmp/jboss*.zip -d $TOPDIR
+RUN chmod -R 777 $TOPDIR
+RUN chown -R visakh:root $TOPDIR
+COPY springbootmongointegration/target/springbootmongointegration.war "$JBOSS_DIR/standalone/deployments"
+
+WORKDIR $TOPDIR
+
+RUN ls -al $JBOSS_DIR
+RUN ls -al $JBOSS_DIR/bin
+RUN java -version
+
+RUN rm -f /tmp/jboss*.zip
+
+ENV JAVA_OPTS="$DB_TYPE -Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC -XX:+CMSPermGenSweepingEnabled \
+-XX:+CMSClassUnloadingEnabled -Djava.net.preferIPv4Stack=true -Ddeployment-logging-config=false -Djboss.server.log.dir=/springboot/log \
+-Dspring.config.location=classpath:/org/spring/boot/integration/springboot_application.properties,\
+file:/springboot/springboot_environment.properties"
+
+# Expose the ports we're interested in
+EXPOSE 8080
+
+# Set the default command to run on boot
+# This will boot JBoss EAP in the standalone mode and bind to all interface
+CMD $JBOSS_DIR/bin/standalone.sh -b 0.0.0.0 "-DdbType=$db_type" "-Dspring.boot.rest.controller.enabled=${spring_rest_controller_enabled}"
+

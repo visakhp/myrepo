@@ -1,20 +1,36 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven' 
-            args '-v /root/.m2:/root/.m2' 
-        }
-    }
+    agent none
     stages {
-        stage('Build') { 
+        stage('Maven Build') {
+            agent {
+              docker {
+                image 'maven' 
+                args '-v /root/.m2:/root/.m2' 
+                }
+            }            
             steps {
-                sh 'mvn clean install' 
+                sh 'mvn clean install'
+            }
+         }
+        stage('Maven package') {
+            agent {
+              docker {
+                image 'maven' 
+                args '-v /root/.m2:/root/.m2' 
+                }
+            }            
+            steps {
+                sh 'mvn package'
             }
         }
-       stage('Deliver') {
+       stage('Create Docker Image') {
+           agent any
             steps {
-                sh './jenkins/scripts/deliver.sh'
+                sh 'docker-compose -f docker-jenkins-compose.yml up -d --build'
+                sh 'sleep 10s'
+                sh 'docker inspect springbootmysql | grep "IPAddress"'
+                sh 'docker inspect springbootmongorest | grep "IPAddress"'
             }
         }
-    }
+    }  
 }
