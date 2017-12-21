@@ -33,7 +33,7 @@ services:
     environment:
       db_type: mysql
       mysql_host: mysql02
-      mongo_host: mongo01
+      mongo_host: mongo02
       spring_rest_controller_enabled: "false"
   springbootmongorest:
     depends_on:
@@ -50,6 +50,6 @@ services:
     environment:
       db_type: mongo
       mysql_host: mysql02
-      mongo_host: mongo01
+      mongo_host: mongo02
       spring_rest_controller_enabled: "true"
 
