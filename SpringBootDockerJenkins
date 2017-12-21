@@ -60,5 +60,5 @@ EXPOSE 8080
 
 # Set the default command to run on boot
 # This will boot JBoss EAP in the standalone mode and bind to all interface
-CMD $JBOSS_DIR/bin/standalone.sh -b 0.0.0.0 "-DdbType=$db_type" "-Dspring.boot.rest.controller.enabled=${spring_rest_controller_enabled}"
+CMD $JBOSS_DIR/bin/standalone.sh -b 0.0.0.0 "-DdbType=$db_type" "-Dspring.boot.rest.controller.enabled=${spring_rest_controller_enabled}" "-Dmysql_host=mysql02" "-Dmongo_host=mongo02"
 
