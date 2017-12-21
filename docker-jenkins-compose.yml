@@ -1,9 +1,9 @@
 version: '3'
  
 services:
-  mysql01:
+  mysql02:
     image: mysql/mysql-server
-    container_name: mysql01
+    container_name: mysql02
     expose:
       - 3306
     environment:
@@ -11,41 +11,45 @@ services:
        MYSQL_USER: root
        MYSQL_PASSWORD: root
        MYSQL_DATABASE: springboot
-  mongo01:
+  mongo02:
     image: mongo
-    container_name: mongo01
+    container_name: mongo02
     expose:
       - 27017
   springbootmysql:
     depends_on:
-      - mysql01
-      - mongo01
+      - mysql02
+      - mongo02
     build:
       context: .
       dockerfile: SpringBootDockerJenkins
     image: springbootintegration
     container_name: springbootmysql
     links:
-      - mysql01
-      - mongo01
+      - mysql02
+      - mongo02
     expose:
       - 8080
     environment:
       db_type: mysql
+      mysql_host: mysql02
+      mongo_host: mongo01
       spring_rest_controller_enabled: "false"
   springbootmongorest:
     depends_on:
-      - mysql01
-      - mongo01
+      - mysql02
+      - mongo02
       - springbootmysql
     image: springbootintegration
     container_name: springbootmongorest
     links:
-      - mysql01
-      - mongo01
+      - mysql02
+      - mongo02
     expose:
       - 8080
     environment:
       db_type: mongo
+      mysql_host: mysql02
+      mongo_host: mongo01
       spring_rest_controller_enabled: "true"
 
