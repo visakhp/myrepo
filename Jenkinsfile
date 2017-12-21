@@ -14,7 +14,7 @@ pipeline {
             }
         }
        stage('Create Docker Image') {
-           agent none
+           agent any
             steps {
                 sh 'docker build -f SpringBootDockerfile -t springbootjenkinsapp .'
                 sh 'docker run -it -d --name=springbootapp:${env.BUILD_NUMBER} springbootjenkinsapp'
