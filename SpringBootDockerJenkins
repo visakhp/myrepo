@@ -6,9 +6,6 @@ RUN useradd -m visakh ; echo visakh: | chpasswd ; usermod -a -G root visakh
 ENV TOPDIR /springboot
 ENV JBOSS_DIR $TOPDIR/jboss-eap-7.0
 
-ADD /jbos/jboss*.zip /tmp
-COPY /jbos/jboss*.zip /tmp
-
 RUN mkdir $TOPDIR
 RUN mkdir $TOPDIR/log
 
@@ -35,6 +32,9 @@ RUN apt-get update && apt-get install -y iputils-ping
 
 # Ensure signals are forwarded to the JVM process correctly for graceful shutdown
 ENV LAUNCH_JBOSS_IN_BACKGROUND=true
+
+WORKDIR /jbos
+COPY /jbos/jboss*.zip /tmp
 
 RUN unzip -q /tmp/jboss*.zip -d $TOPDIR
 RUN chmod -R 777 $TOPDIR
