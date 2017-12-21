@@ -9,6 +9,9 @@ ENV JBOSS_DIR $TOPDIR/jboss-eap-7.0
 RUN mkdir $TOPDIR
 RUN mkdir $TOPDIR/log
 
+RUN apt-get update && \
+      apt-get install -y software-properties-common python-software-properties sudo
+
 # install java
 RUN add-apt-repository ppa:webupd8team/java
 RUN apt-get update
