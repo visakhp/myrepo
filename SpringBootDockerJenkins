@@ -36,7 +36,8 @@ RUN apt-get update && apt-get install -y iputils-ping
 # Ensure signals are forwarded to the JVM process correctly for graceful shutdown
 ENV LAUNCH_JBOSS_IN_BACKGROUND=true
 
-RUN unzip jboss*.zip -d $TOPDIR
+RUN COPY jboss*.zip /tmp
+RUN unzip /tmp/jboss*.zip -d $TOPDIR
 RUN chmod -R 777 $TOPDIR
 RUN chown -R visakh:root $TOPDIR
 COPY springbootmongointegration/target/springbootmongointegration.war "$JBOSS_DIR/standalone/deployments"
@@ -47,7 +48,7 @@ RUN ls -al $JBOSS_DIR
 RUN ls -al $JBOSS_DIR/bin
 RUN java -version
 
-RUN rm jboss*.zip
+RUN rm -f /tmp/jboss*.zip
 
 ENV JAVA_OPTS="$DB_TYPE -Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC -XX:+CMSPermGenSweepingEnabled \
 -XX:+CMSClassUnloadingEnabled -Djava.net.preferIPv4Stack=true -Ddeployment-logging-config=false -Djboss.server.log.dir=/springboot/log \
