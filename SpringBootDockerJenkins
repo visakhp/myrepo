@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y iputils-ping
 # Ensure signals are forwarded to the JVM process correctly for graceful shutdown
 ENV LAUNCH_JBOSS_IN_BACKGROUND=true
 
-RUN COPY jboss*.zip /tmp
+COPY jboss*.zip /tmp
 RUN unzip /tmp/jboss*.zip -d $TOPDIR
 RUN chmod -R 777 $TOPDIR
 RUN chown -R visakh:root $TOPDIR
