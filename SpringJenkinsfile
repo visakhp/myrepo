@@ -3,16 +3,13 @@ pipeline {
     stages {
         stage('Maven Build') {
             agent {
-                docker.image('mysql/mysql-server').withRun {c ->
-                    docker.image('maven').inside("--link ${c.id}:testmysql") {
-                         sh 'mvn clean install'
-                    }
+              docker {
+                image 'maven' 
+                args '-v /root/.m2:/root/.m2 --link mysqltest' 
                 }
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
+            }            
+            steps {
+                sh 'mvn clean install'
             }
          }
         stage('Maven package') {
@@ -26,5 +23,5 @@ pipeline {
                 sh 'mvn package -DskipTests'
             }
         }
-    }  
+     }  
 }
