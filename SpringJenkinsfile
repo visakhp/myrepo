@@ -1,0 +1,32 @@
+pipeline {
+    agent none
+    stages {
+        stage('Maven Build') {
+            agent {
+              docker {
+                image 'maven' 
+                args '-v /root/.m2:/root/.m2' 
+                }
+            }            
+            steps {
+                sh 'mvn clean install'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+         }
+        stage('Maven package') {
+            agent {
+              docker {
+                image 'maven' 
+                args '-v /root/.m2:/root/.m2' 
+                }
+            }            
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+        }
+    }  
+}
