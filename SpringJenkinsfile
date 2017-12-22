@@ -3,14 +3,11 @@ pipeline {
     stages {
         stage('Maven Build') {
             agent {
-              docker {
-                image 'maven' 
-                args '-v /root/.m2:/root/.m2'
-                link 'mysqltest'
+                docker.image('mysql/mysql-server').withRun {c ->
+                    docker.image('maven').inside("--link ${c.id}:testmysql") {
+                         sh 'mvn clean install'
+                    }
                 }
-            }            
-            steps {
-                sh 'mvn clean install'
             }
             post {
                 always {
