@@ -5,7 +5,8 @@ pipeline {
             agent {
               docker {
                 image 'maven' 
-                args '-v /root/.m2:/root/.m2' 
+                args '-v /root/.m2:/root/.m2'
+                link 'mysqltest'
                 }
             }            
             steps {
