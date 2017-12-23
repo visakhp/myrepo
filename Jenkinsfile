@@ -1,15 +1,26 @@
 pipeline {
     agent none
     stages {
+        stage('Check Environment') {
+            agent any
+            steps {
+                sh './check_environment.sh'
+            }
+         }
         stage('Maven Build') {
             agent {
               docker {
                 image 'maven' 
-                args '-v /root/.m2:/root/.m2' 
+                args '-v /root/.m2:/root/.m2 --link mysqltest' 
                 }
             }            
             steps {
                 sh 'mvn clean install'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml' 
+                }
             }
          }
         stage('Maven package') {
@@ -20,7 +31,7 @@ pipeline {
                 }
             }            
             steps {
-                sh 'mvn package'
+                sh 'mvn package -DskipTests'
             }
         }
        stage('Create Docker Image') {
