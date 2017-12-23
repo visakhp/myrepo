@@ -7,7 +7,7 @@ pipeline {
                 sh './check_environment.sh'
             }
          }
-        stage('Maven Build') {
+        stage('Maven Build & Integration Test') {
             agent {
               docker {
                 image 'maven' 
