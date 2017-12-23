@@ -19,7 +19,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml' 
+                    junit 'springbootmongointegration/target/surefire-reports/*.xml' 
                 }
             }
          }
