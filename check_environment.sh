@@ -6,7 +6,10 @@ function createMYSQLTestDockerContainer
 	docker ps -a | grep -q $MYSQL_CONTAINER_NAME
 	if [[ $? -ne 0 ]]; then
 		echo "Creating MYSQLTest Container"
-		docker-compose -f createmysqltest-container-docker-compose.yml up -d --build
+        docker run -e MYSQL_ROOT_PASSWORD=root -e MYSQL_USER=root -e MYSQL_PASSWORD=root \
+		-e MYSQL_DATABASE=test -v "${PWD}"/permission.sql:/docker-entrypoint-initdb.d/permission.sql \
+		-it -d --name=$MYSQL_CONTAINER_NAME mysql/mysql-server:latest
+		
 		if [[ $? -eq 0 ]]; then
 			echo "MYSQLTest Container Created Successfully..."
 	    else
@@ -59,7 +62,7 @@ createMYSQLTestDockerContainer
 checkMYSQLTestDockerContainerRunning
 
 # get the network of mysqltest container
-getMYSQlTestContainerNetwork
+#getMYSQlTestContainerNetwork
 
 exit 0;
 
