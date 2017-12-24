@@ -9,13 +9,14 @@ pipeline {
                 {
                    network= readFile('network_mode.txt').trim()
                 }
+                echo "${network}"
             }
          }
         stage('Maven Build & Integration Test') {
             agent {
               docker {
                 image 'maven' 
-                args '-v /root/.m2:/root/.m2 --net $network --link mysqltest' 
+                  args '-v /root/.m2:/root/.m2 --net ${network} --link mysqltest' 
                 }
             }            
             steps {
