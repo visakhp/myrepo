@@ -12,6 +12,12 @@ services:
        MYSQL_PASSWORD: root
        MYSQL_DATABASE: test
     volumes:
-       - /docker-compose-app/permission.sql:/docker-entrypoint-initdb.d/permission.sql
+       - ${PWD}/permission.sql:/docker-entrypoint-initdb.d/permission.sql
+    networks:
+      - maven-build-net
+networks:
+  maven-build-net:
+    driver: bridge
+
        
 

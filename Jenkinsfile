@@ -5,13 +5,14 @@ pipeline {
             agent any
             steps {
                 sh './check_environment.sh'
+                network = readFile('network_mode.txt').trim()
             }
          }
         stage('Maven Build & Integration Test') {
             agent {
               docker {
                 image 'maven' 
-                args '-v /root/.m2:/root/.m2 --link mysqltest' 
+                args '-v /root/.m2:/root/.m2 --net $network --link mysqltest' 
                 }
             }            
             steps {
