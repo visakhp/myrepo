@@ -7,7 +7,7 @@ pipeline {
                 sh './check_environment.sh'
                 script
                 {
-                   network= readFile('network_mode.txt').trim()
+                   env.network= readFile('network_mode.txt').trim()
                 }
                 echo "${network}"
             }
@@ -16,7 +16,7 @@ pipeline {
             agent {
               docker {
                 image 'maven' 
-                  args '-v /root/.m2:/root/.m2 --net "${network}" --link mysqltest' 
+                  args '-v /root/.m2:/root/.m2 --net "${env.network}" --link mysqltest' 
                 }
             }            
             steps {
