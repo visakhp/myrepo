@@ -5,7 +5,7 @@ pipeline {
             agent any
             steps {
                 sh './check_environment.sh'
-                network = readFile('network_mode.txt').trim()
+                sh 'network=$(readFile('network_mode.txt').trim())'
             }
          }
         stage('Maven Build & Integration Test') {
