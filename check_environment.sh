@@ -43,8 +43,7 @@ function getMYSQlTestContainerNetwork
 {
 	rm -f network_mode.txt
 	local NETWORK_MODE=$(docker inspect $MYSQL_CONTAINER_NAME | grep "NetworkMode")
-	NETWORK_MODE=echo ${NETWORK_MODE#*: }
-    NETWORK_MODE=${NETWORK_MODE#*: }
+	NETWORK_MODE=${NETWORK_MODE#*: }
     NETWORK_MODE=${NETWORK_MODE%,*}
     echo "$NETWORK_MODE" | cut -d '"' -f2 >> network_mode.txt
     chmod 550 network_mode.txt
