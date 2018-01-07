@@ -1,0 +1,57 @@
+MYSQL:
+docker run --name=mysql01 -d mysql/mysql-server:latest
+docker exec -it mysql01 mysql -u root -p
+docker logs mysql01
+mysql> CREATE USER 'usernameall'@'%' IDENTIFIED BY 'ThePassword';
+mysql> grant all on *.* to 'usernameall'@'%';
+mysql> SELECT host, user FROM mysql.user;
+
+Jenkins:
+docker run --name=jenkins01 -d -p 8081:8080 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v /jboss:/jboss jenkinsci/blueocean 
+
+Java:
+docker run -it java
+source /etc/environment
+sudo update-alternatives --config java
+
+Mongo:
+docker run --name some-mongo -d mongo
+docker exec -it some-mongo mongo
+
+Docker build & run:
+docker build -f MyAppDocker -t myapp .
+docker run -it --name=myapp01 myapp
+docker inspect id
+
+Run docker in host container/Network:
+docker run -it -d --name=springboot01 --network=host springbootintegration
+
+Docker port forward
+docker run -it -d -p 8080:8080 --name=springboot01 springbootintegration
+
+Docker link containers
+docker run -it -d --name=springbootmysql --link mysql01 --link mongo01 -e "db_type=mysql" springbootintegration
+
+Docker push to hub
+docker login --username=
+docker tag <image-name> <repo-name>:tagname
+docker push <repo-name>
+
+Docker Compose:
+docker-compose -f docker-compose.yml up -d
+
+Remove docker Compose:
+docker-compose rm -v
+
+
+Docker Swarm:
+docker swarm init
+docker-machine create --driver virtualbox myvm1
+docker-machine create --driver virtualbox myvm2
+docker-machine ssh myvm1 "docker swarm init --advertise-addr <IP of machine>"
+docker-machine ssh myvm2 "docker swarm join <token of first VM>"
+docker swarm join-token manager
+eval $(docker-machine env myvm1)
+
+docker stack deploy -c docker-compose.yml --with-registry-auth <stackName>
+

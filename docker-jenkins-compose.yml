@@ -1,0 +1,72 @@
+version: '3'
+ 
+services:
+  mysql02:
+    image: mysql/mysql-server
+    ports:
+      - 3306:3306
+    healthcheck:
+      disable: true
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 512M
+      restart_policy:
+        condition: none
+    environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_USER: root
+       MYSQL_PASSWORD: root
+       MYSQL_DATABASE: springboot
+    networks:
+      - backend
+  mongo02:
+    image: mongo
+    ports:
+      - 27017:27017
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 512M
+      restart_policy:
+        condition: none
+    networks:
+      - backend
+  springbootmysql:
+    depends_on:
+      - mysql02
+      - mongo02
+    image: visakhp/myapp:springbootintegration
+    healthcheck:
+      disable: true
+    ports:
+      - 8080:8080
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 2048M
+      restart_policy:
+        condition: none
+    environment:
+      JAVA_OPTS: "-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC -XX:+CMSPermGenSweepingEnabled \
+          -XX:+CMSClassUnloadingEnabled -Djava.net.preferIPv4Stack=true -Ddeployment-logging-config=false -Djboss.server.log.dir=/springboot/log \
+          -Dspring.config.location=classpath:/org/spring/boot/integration/springboot_application.properties,\
+          file:/springboot/springboot_environment.properties -Djboss.as.management.blocking.timeout=1800"
+      db_type: mysql
+      mysql_host: mysql02
+      mongo_host: mongo02
+      spring_rest_controller_enabled: "false"
+    networks:
+      - backend
+      - frontend
+networks:
+  backend:
+  frontend:
+
+
