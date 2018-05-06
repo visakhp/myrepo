@@ -1,0 +1,20 @@
+---
+# host is webserver as we are going to deploy the docker images and containers.
+# connection is local i.e. local machine.
+- hosts: webserver
+  connection: local
+
+# set the global variables here.
+  vars:
+    docker_app_location: /springbootintegration_docker_compose
+
+# ansible tasks starts here
+  tasks:
+
+# create docker images and containers. Use docker-compose to create the images and containers.
+  - name: create docker images and containers
+    docker_service:
+      build: yes
+      project_src: "{{ docker_app_location }}"
+      state: present
+
