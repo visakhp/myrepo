@@ -1,12 +1,14 @@
 ---
 # host is webserver as we are going to deploy the docker images and containers.
-# connection is local i.e. local machine.
+# connection is ssh i.e. use ssh keys for authentication and use remote_user as my user instead of root
 - hosts: webserver
-  connection: local
+  connection: ssh
+  remote_user: visakh
 
 # set the global variables here.
   vars:
     docker_app_location: /springbootintegration_docker_compose
+    ansible_app_location: /ansible_docker_app
 
 # ansible tasks starts here
   tasks:
@@ -17,4 +19,10 @@
       build: yes
       project_src: "{{ docker_app_location }}"
       state: present
+    register: docker_result
+
+# write docker result to file in ansible host i.e. localhost
+# we can check the staus, IP of the containers etc..
+  - name: write docker result to file
+    local_action: copy content="{{ docker_result }}" dest="{{ ansible_app_location }}/docker_result.{{ ansible_date_time.date }}.json"
 

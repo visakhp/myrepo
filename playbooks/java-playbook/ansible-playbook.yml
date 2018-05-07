@@ -1,8 +1,9 @@
 ---
 # host is webserver as we are going to deploy the app on webserver.
-# connection is local i.e. local machine.
+# connection is ssh i.e. use ssh keys for authentication and use remote_user as my user instead of root
 - hosts: webserver
-  connection: local
+  connection: ssh
+  remote_user: visakh
 
 # set the global variables here.
   vars:
@@ -11,6 +12,10 @@
 
 # ansible tasks starts here
   tasks:
+
+# stop jboss if running... This is child playbook...
+  - name: stop jboss...
+    include: ansible-playbook-stop-service.yml jboss_location="{{ app_location }}/jboss-eap-7.0/bin"
 
 # create app directories. We have used looping to create multiple directories
   - name: create app directory
@@ -44,7 +49,7 @@
   - name: set permissions
     file:
        path: "{{ item.location }}"
-       mode: 0770
+       mode: 0777
        recurse: yes
     with_items:
         - { location: '{{ app_log_location }}' }
@@ -58,7 +63,10 @@
         timeout: 5
 
 # Now start JBoss server. Set relevant environment etc...
+# Run this task as async, else ansible will send OS kill signal and JBOSS/JVM will stop due to that.
   - name: Start Application - JBoss
+    async: True
+    poll: 0
     environment:
        JAVA_OPTS: "-Djboss.server.log.dir='{{ app_log_location }}' \
                    -Dspring.config.location=classpath:/org/spring/boot/integration/springboot_application.properties,\
@@ -66,9 +74,13 @@
     command: "{{ item }}"
     with_items:
         - bash "{{ app_location }}/jboss-eap-7.0/bin/start_server.sh"
-        - sleep 60s
     args:
      chdir: "/" # run the app from root directory else ansible will run from current directory.
+
+# Now sleep for 60s to wait for Jboss to start.
+# We can check the application status in next step.
+  - name: Wait for Jboss Result
+    command: sleep 60s
 
 # check out WebApp is Up and running.
 # we can check this via actuator which included in our application

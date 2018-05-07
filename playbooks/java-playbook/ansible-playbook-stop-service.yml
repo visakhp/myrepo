@@ -1,0 +1,22 @@
+---
+
+# this is child playbook contains list of tasks to execute
+
+# check if jboss already installed
+  - name: Check that the stop_server.sh exists
+    stat:
+      path: "{{ jboss_location }}/stop_server.sh"
+    register: stat_result
+
+# stop JBoss server if running
+  - name: stop jboss...
+    command: bash "{{ jboss_location }}/stop_server.sh"
+    when: stat_result.stat.exists == True
+    register: result
+
+# debug the outcome
+  - name: check outcome
+    debug:
+      var: result
+    when: stat_result.stat.exists == True
+
