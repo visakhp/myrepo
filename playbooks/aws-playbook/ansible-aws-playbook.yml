@@ -1,0 +1,112 @@
+---
+# host is webserver as we are going to deploy the app on webserver.
+# connection is ssh i.e. use ssh keys for authentication and use remote_user as my user instead of root
+- hosts: webserver
+  connection: ssh
+  remote_user: visakh
+
+# set the global variables here.
+  vars:
+    app_location: /opt/ansible_app
+    app_log_location: /springboot/log
+
+# ansible tasks starts here
+  tasks:
+
+# stop jboss if running...
+  - name: stop jboss...
+    include: ansible-playbook-stop-service.yml jboss_location="{{ app_location }}/jboss-eap-7.0/bin"
+
+# create app directories. We have used looping to create multiple directories
+  - name: create app directory
+    become: yes
+    become_user: root
+    file:
+       path: "{{ item.location }}"
+       state: directory
+       mode: 0770
+       owner: visakh
+       group: visakh
+       recurse: yes
+    with_items:
+        - { location: '{{ app_log_location }}' }
+        - { location: '{{ app_location }}' }
+
+# Now install Jboss server and make sure that the unzipping is successful via *creates*
+  - name: install Jboss Server
+    become: yes
+    become_user: root
+    unarchive:
+       src: /springbootintegration_docker_compose/jboss-eap-7.0.0.zip
+       dest: "{{ app_location }}"
+       remote_src: no
+       creates: "{{ app_location }}/jboss-eap-7.0"
+       mode: 0770
+       owner: visakh
+       group: visakh
+
+# Now install our web app
+  - name: Install SpringBootApplication
+    copy:
+       src: "{{ item.src }}"
+       dest: "{{ item.dest }}"
+    with_items:
+        - { src: '/ansible_playbook_app/springbootmongointegration.war', dest: '{{ app_location }}/jboss-eap-7.0/standalone/deployments' }
+        - { src: '/ansible_playbook_app/start_server.sh', dest: '{{ app_location }}/jboss-eap-7.0/bin' }
+        - { src: '/ansible_playbook_app/stop_server.sh', dest: '{{ app_location }}/jboss-eap-7.0/bin' }
+        - { src: '/ansible_playbook_app/springboot_environment.properties', dest: '{{ app_location }}' }
+
+# set the permissions for our folders and files.
+  - name: set permissions
+    file:
+       path: "{{ item.location }}"
+       mode: 0770
+       owner: visakh
+       group: visakh
+       recurse: yes
+    with_items:
+        - { location: '{{ app_log_location }}' }
+        - { location: '{{ app_location }}' }
+
+# check whether mysql is running i.e. check port is listening to accept connections from webserver to dbserver
+  - name: Check MYSQL Running
+    wait_for:
+        host: mysql01
+        port: 3306
+        timeout: 5
+
+# Now start JBoss server. Set relevant environment etc...
+# Run this task as async, else ansible will send OS kill signal and JBOSS/JVM will stop due to that.
+  - name: Start Application - JBoss
+    async: True
+    poll: 0
+    environment:
+       JAVA_OPTS: "-Djboss.server.log.dir='{{ app_log_location }}' -Dmysql_host=mysql01 \
+                   -Dspring.config.location=classpath:/org/spring/boot/integration/springboot_application.properties,\
+                   file:'{{ app_location }}/springboot_environment.properties'"
+    command: "{{ item }}"
+    with_items:
+        - bash "{{ app_location }}/jboss-eap-7.0/bin/start_server.sh"
+    args:
+     chdir: "/" # run the app from root directory else ansible will run from current directory.
+
+# Now sleep for 60s to wait for Jboss to start.
+# We can check the application status in next step.
+  - name: Wait for Jboss Result
+    command: sleep 60s
+
+# check out WebApp is Up and running.
+# we can check this via actuator which included in our application
+  - name: Check Application Deployed Successfully
+    uri:
+      url: http://localhost:8080/SpringBootIntegrationService/details/health
+      method: GET
+      return_content: yes
+      status_code: 200
+      body_format: json
+    register: result
+  - name: Check Application Deployed Successfully
+    shell: echo "Application Status is UP!!!"
+    when: result.json.status == "UP"
+
+# ansible tasks ends here
