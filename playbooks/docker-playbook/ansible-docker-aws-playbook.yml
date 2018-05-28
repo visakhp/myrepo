@@ -1,0 +1,83 @@
+---
+# host is webserver as we are going to deploy the docker images and containers.
+# connection is ssh i.e. use ssh keys for authentication and use remote_user as my user instead of root
+- hosts: webserver
+  connection: ssh
+  remote_user: visakh
+
+# set the global variables here.
+  vars:
+    docker_app_location: /docker_app
+    ansible_app_location: /ansible_docker_app
+
+# ansible tasks starts here
+  tasks:
+
+# create app directories. We have used looping to create multiple directories
+  - name: create app directory
+    become: yes
+    become_user: root
+    file:
+       path: "{{ item.location }}"
+       state: directory
+       mode: 0770
+       owner: visakh
+       group: visakh
+       recurse: yes
+    with_items:
+        - { location: '{{ docker_app_location }}' }
+
+# Now install our web app
+  - name: Copy Docker Files
+    copy:
+       src: "{{ item.src }}"
+       dest: "{{ item.dest }}"
+       mode: 0540
+       owner: visakh
+       group: visakh
+    with_items:
+        - { src: '/springbootintegration_docker_compose/springbootmongointegration.war', dest: '{{ docker_app_location }}' }
+        - { src: '/springbootintegration_docker_compose/docker-compose-ansible-aws.yml', dest: '{{ docker_app_location }}' }
+        - { src: '/springbootintegration_docker_compose/jboss-eap-7.0.0.zip', dest: '{{ docker_app_location }}' }
+        - { src: '/springbootintegration_docker_compose/springboot_environment.properties', dest: '{{ docker_app_location }}' }
+        - { src: '/springbootintegration_docker_compose/jdk-8u152-linux-x64.tar.gz', dest: '{{ docker_app_location }}' }
+        - { src: '/springbootintegration_docker_compose/SpringBootDockerfile', dest: '{{ docker_app_location }}' }
+        - { src: '/springbootintegration_docker_compose/permission.sql', dest: '{{ docker_app_location }}' }
+
+# create docker images and containers. Use docker-compose to create the images and containers.
+  - name: create docker images and containers
+    docker_service:
+      build: yes
+      docker_host: tcp://{ip goes here}:2375
+      project_src: "{{ docker_app_location }}"
+      files: docker-compose-ansible-aws.yml
+      state: present
+    register: docker_result
+
+# write docker result to file in ansible host i.e. localhost
+# we can check the staus, IP of the containers etc..
+  - name: write docker result to file
+    local_action: copy content="{{ docker_result }}" dest="{{ ansible_app_location }}/docker_result.{{ ansible_date_time.date }}.json"
+    delegate_to: localhost
+
+# Now sleep for 60s to wait for Jboss to start.
+# We can check the application status in next step.
+  - name: Wait for Jboss Result
+    command: sleep 60s
+
+# check out WebApp is Up and running.
+# we can check this via actuator which included in our application
+  - name: Check Application Deployed Successfully
+    uri:
+      url: http://localhost:8080/SpringBootIntegrationService/details/health
+      method: GET
+      return_content: yes
+      status_code: 200
+      body_format: json
+    register: result
+  - name: Check Application Status
+    shell: echo "Application Status is UP!!!"
+    when: result.json.status == "UP"
+
+# ansible tasks ends here
+
