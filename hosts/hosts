@@ -11,14 +11,12 @@ IP
 ansible_ssh_private_key_file=path to private key
 ansible_user=xxxx
 remote_user=xxxx
-connection=ssh
 ansible_connection=ssh
 
 [dbserver:vars]
 ansible_ssh_private_key_file=path to private key
 ansible_user=xxxx
 remote_user=xxxx
-connection=ssh
 ansible_connection=ssh
 
 

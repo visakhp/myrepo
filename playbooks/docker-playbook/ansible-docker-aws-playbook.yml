@@ -8,13 +8,14 @@
 # set the global variables here.
   vars:
     docker_app_location: /docker_app
+    docker_cert_location: /home/visakh/.docker
     ansible_app_location: /ansible_docker_app
 
 # ansible tasks starts here
   tasks:
 
 # create app directories. We have used looping to create multiple directories
-  - name: create app directory
+  - name: create docker app directory
     become: yes
     become_user: root
     file:
@@ -23,9 +24,17 @@
        mode: 0770
        owner: visakh
        group: visakh
-       recurse: yes
     with_items:
         - { location: '{{ docker_app_location }}' }
+
+# create docker certificate location
+  - name: create docker certs directory
+    file:
+       state: directory
+       path: "{{ docker_cert_location }}"
+       mode: 0500
+       owner: visakh
+       group: visakh
 
 # Now install our web app
   - name: Copy Docker Files
@@ -44,11 +53,32 @@
         - { src: '/springbootintegration_docker_compose/SpringBootDockerfile', dest: '{{ docker_app_location }}' }
         - { src: '/springbootintegration_docker_compose/permission.sql', dest: '{{ docker_app_location }}' }
 
+# copy docker certificates to remote host
+  - name: Copy Docker Certificates
+    become: yes
+    become_user: root
+    copy:
+       src: "{{ item.src }}"
+       dest: "{{ docker_cert_location }}"
+       mode: 0400
+       owner: visakh
+       group: visakh
+    with_items:
+        - { src: '/docker/client_keys/ca.pem' }
+        - { src: '/docker/client_keys/cert.pem' }
+        - { src: '/docker/client_keys/key.pem' }
+
 # create docker images and containers. Use docker-compose to create the images and containers.
   - name: create docker images and containers
     docker_service:
       build: yes
-      docker_host: tcp://{ip goes here}:2375
+      debug: yes
+      tls_verify: yes
+      docker_host: "{{ docker_host }}"
+      cacert_path: "{{ cacert_path }}"
+      cert_path: "{{ cert_path }}"
+      key_path: "{{  key_path }}"
+      tls_hostname: "{{  tls_hostname }}"
       project_src: "{{ docker_app_location }}"
       files: docker-compose-ansible-aws.yml
       state: present
@@ -75,9 +105,10 @@
       status_code: 200
       body_format: json
     register: result
+
+# check the response of Application
   - name: Check Application Status
     shell: echo "Application Status is UP!!!"
     when: result.json.status == "UP"
 
 # ansible tasks ends here
-
