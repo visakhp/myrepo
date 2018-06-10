@@ -38,7 +38,7 @@ pipeline {
            agent any
             steps {
                 sh 'pwd'
-                sh 'docker cp jenkins01:/jbos/jboss-eap-7.0.0.zip /var/jenkins_home/workspace/SpringBootIntegration-APP'
+                sh 'docker cp jenkins01:/jboss/jboss-eap-7.0.0.zip /var/jenkins_home/workspace/SpringBootIntegration-APP'
                 sh 'docker-compose -f docker-jenkins-compose.yml up -d --build'
                 sh 'sleep 10s'
                 sh 'docker inspect springbootmysql | grep "IPAddress"'
