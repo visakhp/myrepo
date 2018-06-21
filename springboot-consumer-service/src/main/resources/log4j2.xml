@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+    <Properties>
+        <Property name="basePath">/springbootconsumer/log</Property>
+    </Properties>
+ 
+    <Appenders>
+        <RollingFile name="springbootlogger" fileName="${sys:basePath}/springbootconsumer.log" filePattern="${sys:basePath}/springboot-%d{MM-dd-yyyy}-%i.log" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,SSS z} [%p] [%c] [%t] %m%n" />
+        	<Policies>
+				<TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        
+        <!-- netflix logging -->
+        <Logger name="com.netflix" level="info" additivity="false">
+            <appender-ref ref="springbootlogger" level="info" />
+        </Logger>       
+        
+        <!-- spring logging -->
+        <Logger name="org.springframework" level="info" additivity="false">
+            <appender-ref ref="springbootlogger" level="info" />
+        </Logger>
+
+        <!-- jboss logging -->
+        <Logger name="org.jboss" level="info" additivity="false">
+            <appender-ref ref="springbootlogger" level="info" />
+        </Logger>
+        
+        <!-- jackson json logging -->
+        <Logger name="com.fasterxml" level="info" additivity="false">
+            <appender-ref ref="springbootlogger" level="info" />
+        </Logger>
+
+
+        <!-- application logging -->
+        <Logger name="org.spring.boot.consumer.service" level="info" additivity="false">
+            <appender-ref ref="springbootlogger" level="info" />
+        </Logger>
+
+        <Root level="info" additivity="false">
+            <appender-ref ref="springbootlogger" />
+        </Root>
+    </Loggers>
+</Configuration>
