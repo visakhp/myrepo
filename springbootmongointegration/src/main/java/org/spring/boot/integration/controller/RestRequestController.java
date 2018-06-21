@@ -12,10 +12,14 @@ import org.spring.boot.integration.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 @ConditionalOnProperty(prefix = "spring.boot.rest.controller", name = "enabled")
@@ -45,23 +49,34 @@ public class RestRequestController
 	}
 
 	@RequestMapping(value = "/article/save", method = RequestMethod.POST)
-	public String addORSaveArticle(@RequestBody @Valid Article article, BindingResult bindingResult)
-			throws SpringBootException
+	public Object addORSaveArticle(@RequestBody @Valid Article article, BindingResult bindingResult)
+			throws SpringBootException, JsonProcessingException
 	{
 		try
 		{
-			if (article.getArticleID() == 0)
+			if (bindingResult.hasErrors())
 			{
-				// new article, add it
-				this.articleService.addArticle(article);
-				LOGGER.info("Article Added Successfully");
-				return "\"Article added Successfully\"";
-			} else
+				List<FieldError> errors = bindingResult.getFieldErrors();
+				LOGGER.error("Request is Invalid: ", errors);
+
+				return errors;
+			}
+
+			else
 			{
-				// existing article, update it
-				this.articleService.updateArticle(article);
-				LOGGER.info("Article updated Successfully");
-				return "\"Article updated Successfully\"";
+				if (article.getArticleID() == 0)
+				{
+					// new article, add it
+					this.articleService.addArticle(article);
+					LOGGER.info("Article Added Successfully");
+					return "\"Article added Successfully\"";
+				} else
+				{
+					// existing article, update it
+					this.articleService.updateArticle(article);
+					LOGGER.info("Article updated Successfully");
+					return "\"Article updated Successfully\"";
+				}
 			}
 
 		} catch (SpringBootException e)
@@ -71,4 +86,21 @@ public class RestRequestController
 		}
 
 	}
+
+	@RequestMapping(value = "/editArticle/{articleId}", method = RequestMethod.GET)
+	public Article editArticle(@PathVariable("articleId") int articleId) throws SpringBootException
+	{
+		try
+		{
+			Article article = this.articleService.getArticleById(articleId);
+
+			return article;
+
+		} catch (SpringBootException ex)
+		{
+			LOGGER.error("Error While reteriving article from database for articleId:{}. Exception: {}", articleId, ex);
+			throw new SpringBootException("Error While reteriving article from database. Please try again!!!");
+		}
+	}
+
 }
