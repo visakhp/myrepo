@@ -1,0 +1,66 @@
+version: '3'
+ 
+services:
+  mysql01:
+    image: mysql/mysql-server
+    container_name: mysql01
+    expose:
+      - 3306
+    environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_USER: root
+       MYSQL_PASSWORD: root
+       MYSQL_DATABASE: springboot
+    volumes:
+       - /springbootintegration_docker_compose/permission.sql:/docker-entrypoint-initdb.d/permission.sql
+  mongo01:
+    image: mongo
+    container_name: mongo01
+    expose:
+      - 27017
+  springbootservice:
+    depends_on:
+      - mysql01
+      - mongo01
+    build:
+      context: .
+      dockerfile: SpringBootServiceDockerfile
+    image: springbootservice
+    container_name: springbootservice
+    expose:
+      - 8180
+  springbootproducerservice:
+    depends_on:
+      - springbootservice
+    build:
+      context: .
+      dockerfile: SpringBootDockerfile
+    image: springbootproducerservice
+    container_name: springbootproducerservice
+    links:
+      - mysql01
+      - mongo01
+      - springbootservice
+    expose:
+      - 8080
+    environment:
+      db_type: mysql
+      spring_rest_controller_enabled: "true"
+      eureka_host: springbootservice
+      mysql_host: mysql01
+  springbootconsumerservice:
+    depends_on:
+      - springbootproducerservice
+    build:
+      context: .
+      dockerfile: SpringBootConsumerDockerfile
+    image: springbootconsumerservice
+    container_name: springbootconsumerservice
+    links:
+      - springbootservice
+      - springbootproducerservice
+    expose:
+      - 8080
+    environment:
+      eureka_host: springbootservice
+
