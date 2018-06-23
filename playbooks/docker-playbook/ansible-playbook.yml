@@ -33,7 +33,7 @@
 
 # check out WebApp is Up and running.
 # we can check this via actuator which included in our application
-  - name: Check Application Deployed Successfully
+  - name: Check Eureka Server Deployed Successfully
     uri:
       url: http://localhost:8180/details/health
       method: GET
@@ -44,7 +44,7 @@
 
 # check out WebApp is Up and running.
 # we can check this via actuator which included in our application
-  - name: Check Application Deployed Successfully
+  - name: Check Producer Deployed Successfully
     uri:
       url: http://localhost:8081/SpringBootIntegrationService/details/health
       method: GET
@@ -55,7 +55,7 @@
     
 # check out WebApp is Up and running.
 # we can check this via actuator which included in our application
-  - name: Check Application Deployed Successfully
+  - name: Check Consumer Deployed Successfully
     uri:
       url: http://localhost:8082/SpringBootConsumerService/details/health
       method: GET
