@@ -17,5 +17,10 @@ pipeline {
                 sh 'mvn package -DskipTests'
             }
         }
+         stage('Copy War File') {       
+            steps {
+                sh 'cp springboot-micro-services-server/target/*.war /jenkins-data'
+            }
+        }
     }  
 }
