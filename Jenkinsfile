@@ -23,10 +23,5 @@ pipeline {
                 sh 'cp springboot-micro-services-server/target/*.jar /springbootintegration_docker_compose'
             }
         }
-         stage('Ping Mysql') {       
-            steps {
-                sh 'ping mysqltest'
-            }
-        }
     }  
 }
