@@ -46,7 +46,7 @@
 # we can check this via actuator which included in our application
   - name: Check Application Deployed Successfully
     uri:
-      url: http://localhost:8080/SpringBootIntegrationService/details/health
+      url: http://localhost:8081/SpringBootIntegrationService/details/health
       method: GET
       return_content: yes
       status_code: 200
@@ -57,7 +57,7 @@
 # we can check this via actuator which included in our application
   - name: Check Application Deployed Successfully
     uri:
-      url: http://localhost:8081/SpringBootConsumerService/details/health
+      url: http://localhost:8082/SpringBootConsumerService/details/health
       method: GET
       return_content: yes
       status_code: 200
