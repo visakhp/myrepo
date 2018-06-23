@@ -17,10 +17,15 @@ pipeline {
                 sh 'mvn package -DskipTests'
             }
         }
-         stage('Copy War File') {       
+         stage('Copy Jar File') {       
             steps {
                 sh 'pwd'
-                sh 'cp springboot-micro-services-server/target/*.jar /jenkins-data'
+                sh 'cp springboot-micro-services-server/target/*.jar /springbootintegration_docker_compose'
+            }
+        }
+         stage('Ping Mysql') {       
+            steps {
+                sh 'ping mysqltest'
             }
         }
     }  
