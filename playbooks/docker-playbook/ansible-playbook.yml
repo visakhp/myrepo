@@ -26,3 +26,57 @@
   - name: write docker result to file
     local_action: copy content="{{ docker_result }}" dest="{{ ansible_app_location }}/docker_result.{{ ansible_date_time.date }}.json"
 
+# Now sleep for 60s to wait for Jboss to start.
+# We can check the application status in next step.
+  - name: Wait for Jboss Result
+    command: sleep 60s
+
+# check out WebApp is Up and running.
+# we can check this via actuator which included in our application
+  - name: Check Application Deployed Successfully
+    uri:
+      url: http://localhost:8180/details/health
+      method: GET
+      return_content: yes
+      status_code: 200
+      body_format: json
+    register: server_result
+
+# check out WebApp is Up and running.
+# we can check this via actuator which included in our application
+  - name: Check Application Deployed Successfully
+    uri:
+      url: http://localhost:8080/SpringBootIntegrationService/details/health
+      method: GET
+      return_content: yes
+      status_code: 200
+      body_format: json
+    register: producer_result
+    
+# check out WebApp is Up and running.
+# we can check this via actuator which included in our application
+  - name: Check Application Deployed Successfully
+    uri:
+      url: http://localhost:8081/SpringBootConsumerService/details/health
+      method: GET
+      return_content: yes
+      status_code: 200
+      body_format: json
+    register: consumer_result
+
+# check the response of Eureka Server
+  - name: Check Eureka Server Application Status
+    shell: echo "Eureka Server Status is UP!!!"
+    when: server_result.json.status == "UP"
+
+# check the response of Producer
+  - name: Check Producer Service Status
+    shell: echo "Application Status is UP!!!"
+    when: producer_result.json.status == "UP"
+
+# check the response of Consumer
+  - name: Check Consumer Service Status
+    shell: echo "Application Status is UP!!!"
+    when: consumer_result.json.status == "UP"
+
+
