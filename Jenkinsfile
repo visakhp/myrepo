@@ -1,48 +1,26 @@
 pipeline {
-    agent none
+    agent any
     stages {
-        stage('Check Environment') {
-            agent any
+       stage('Check Maven and Java Version') {       
             steps {
-                sh './check_environment.sh'
+                sh 'mvn -version'
+                sh 'java -version'
             }
          }
-        stage('Maven Build & Integration Test') {
-            agent {
-              docker {
-                image 'maven' 
-                  args '-v /root/.m2:/root/.m2 --link mysqltest' 
-                }
-            }            
+        stage('Maven Build & Integration Test') {       
             steps {
                 sh 'mvn clean install'
             }
-            post {
-                always {
-                    junit 'springbootmongointegration/target/surefire-reports/*.xml' 
-                }
-            }
          }
-        stage('Maven package') {
-            agent {
-              docker {
-                image 'maven' 
-                args '-v /root/.m2:/root/.m2' 
-                }
-            }            
+        stage('Maven package') {       
             steps {
                 sh 'mvn package -DskipTests'
             }
         }
-       stage('Create Docker Image') {
-           agent any
+         stage('Copy Jar File') {       
             steps {
                 sh 'pwd'
-                sh 'docker cp jenkins01:/jboss/jboss-eap-7.0.0.zip /var/jenkins_home/workspace/SpringBootIntegration-APP'
-                sh 'docker-compose -f docker-jenkins-compose.yml up -d --build'
-                sh 'sleep 10s'
-                sh 'docker inspect springbootmysql | grep "IPAddress"'
-                sh 'docker inspect springbootmongorest | grep "IPAddress"'
+                sh 'cp springbootmongointegration/target/*.jar /springbootintegration_docker_compose'
             }
         }
     }  
