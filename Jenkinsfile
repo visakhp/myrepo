@@ -17,10 +17,10 @@ pipeline {
                 sh 'mvn package -DskipTests'
             }
         }
-         stage('Copy Jar File') {       
+         stage('Copy War File') {       
             steps {
                 sh 'pwd'
-                sh 'cp springbootmongointegration/target/*.jar /springbootintegration_docker_compose'
+                sh 'cp springbootmongointegration/target/*.war /springbootintegration_docker_compose'
             }
         }
     }  
