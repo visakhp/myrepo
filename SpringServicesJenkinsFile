@@ -19,7 +19,8 @@ pipeline {
         }
          stage('Copy War File') {       
             steps {
-                sh 'cp springboot-micro-services-server/target/*.war /jenkins-data'
+                sh 'pwd'
+                sh 'cp springboot-micro-services-server/target/*.jar /jenkins-data'
             }
         }
     }  
