@@ -11,7 +11,7 @@ pipeline {
                 ansiblePlaybook(
                     colorized: true,
                     credentialsId: 'ansible-key',
-                    extras: '-v',
+                    extras: '-vvv',
                     inventory: '/etc/ansible/hosts',
                     playbook: '/ansible_docker_app/ansible-playbook.yml')
             }
