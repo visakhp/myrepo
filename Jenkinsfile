@@ -8,7 +8,12 @@ pipeline {
          }
         stage('Deploy Ansible Applications') {       
             steps {
-                ansiblePlaybook colorized: true, credentialsId: 'ansible-key', extras: '-v', inventory: '/etc/ansible/hosts', playbook: '/ansible_docker_app/ansible-playbook.yml'
+                ansiblePlaybook(
+                    colorized: true,
+                    credentialsId: 'ansible-key',
+                    extras: '-v',
+                    inventory: '/etc/ansible/hosts',
+                    playbook: '/ansible_docker_app/ansible-playbook.yml')
             }
          }
     }  
