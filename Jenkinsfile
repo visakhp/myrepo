@@ -9,9 +9,15 @@ pipeline {
         stage('Deploy Ansible Applications') {       
             steps {
                 sshagent(['ansible-key']) {
-                    sh 'ssh visakh@localhost uname -a'
-                    sh 'ansible-playbook /ansible_docker_app/ansible-playbook.yml -vvv'
-                }
+                    sh 'ssh -o StrictHostKeyChecking=no visakh@localhost uname -a'
+                    sh 'export ANSIBLE_HOST_KEY_CHECKING=False'
+                    ansiblePlaybook(
+                       colorized: true,
+                       credentialsId: 'ansible-key',
+                       extras: '-vvv',
+                       inventory: '/etc/ansible/hosts',
+                       playbook: '/ansible_docker_app/ansible-playbook.yml')
+                 }
              }
          }
     }  
