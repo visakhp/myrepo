@@ -29,7 +29,7 @@
 # Now sleep for 60s to wait for Jboss to start.
 # We can check the application status in next step.
   - name: Wait for Jboss Result
-    command: sleep 60s
+    command: sleep 120s
 
 # check out WebApp is Up and running.
 # we can check this via actuator which included in our application

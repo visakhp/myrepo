@@ -9,7 +9,6 @@ pipeline {
         stage('Deploy Ansible Applications') {       
             steps {
                 sshagent(['ansible-key']) {
-                    sh 'ssh -o StrictHostKeyChecking=no visakh@localhost uname -a'
                     sh 'export ANSIBLE_HOST_KEY_CHECKING=False'
                     ansiblePlaybook(
                        colorized: true,
