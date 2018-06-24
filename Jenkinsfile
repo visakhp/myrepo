@@ -11,6 +11,7 @@ pipeline {
                 sshagent(['ansible-key']) {
                     sh 'ssh visakh@localhost uname -a'
                     sh 'ansible-playbook /ansible_docker_app/ansible-playbook.yml -vvv'
+                }
              }
          }
     }  
