@@ -8,14 +8,9 @@ pipeline {
          }
         stage('Deploy Ansible Applications') {       
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-key', keyFileVariable: 'ANSIBLE_KEY', passphraseVariable: 'ANSIBLE_PASSPHRASE', usernameVariable: 'ANSIBLE_USERNAME')]) {
-                    ansiblePlaybook(
-                       colorized: true,
-                       credentialsId: 'ansible-key',
-                       extras: '-vvv',
-                       inventory: '/etc/ansible/hosts',
-                       playbook: '/ansible_docker_app/ansible-playbook.yml')
-                  }
+                sshagent(['ansible-key']) {
+                    sh 'ssh visakh@localhost uname -a'
+                    sh 'ansible-playbook /ansible_docker_app/ansible-playbook.yml -vvv'
              }
          }
     }  
