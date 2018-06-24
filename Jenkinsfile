@@ -8,13 +8,15 @@ pipeline {
          }
         stage('Deploy Ansible Applications') {       
             steps {
-                ansiblePlaybook(
-                    colorized: true,
-                    credentialsId: 'ansible-key',
-                    extras: '-vvv',
-                    inventory: '/etc/ansible/hosts',
-                    playbook: '/ansible_docker_app/ansible-playbook.yml')
-            }
+                sshagent(['ansible-key']) {
+                    ansiblePlaybook(
+                       colorized: true,
+                       credentialsId: 'ansible-key',
+                       extras: '-vvv',
+                       inventory: '/etc/ansible/hosts',
+                       playbook: '/ansible_docker_app/ansible-playbook.yml')
+                  }
+             }
          }
     }  
 }
