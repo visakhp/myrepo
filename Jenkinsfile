@@ -8,7 +8,7 @@ pipeline {
          }
         stage('Deploy Ansible Applications') {       
             steps {
-                sshagent(['ansible-key']) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-key', keyFileVariable: 'ANSIBLE_KEY', passphraseVariable: 'ANSIBLE_PASSPHRASE', usernameVariable: 'ANSIBLE_USERNAME')]) {
                     ansiblePlaybook(
                        colorized: true,
                        credentialsId: 'ansible-key',
